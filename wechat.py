@@ -9,9 +9,19 @@ def read():
     for i in range(54):
         number = int(table.cell_value(i,0))
         name = table.cell_value(i,1)
-        temp = {'number':number,'name':name,'date':None,'finish':False}
+        temp = {'number':number,'name':name,'date':None}
         data.append(temp)
     return data
+
+def save(data,path,sheet,row,col):
+    xls = xlrd.open_workbook(path)
+    xlsc = copy(xls)
+    sheet1 = xlsc.get_sheet(sheet)
+    (r,c) = data.shape
+    for i in range(r):
+        for j in range(c):
+            sheet1.write(i + row - 1, j + col - 1, float(data[i][j]))
+    xlsc.save(path)
 
 def getChatroom(name):
     for room in itchat.get_chatrooms():
