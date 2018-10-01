@@ -1,5 +1,17 @@
 import itchat
 import time
+import xlrd
+
+def read():
+    file = xlrd.open_workbook('二班名单.xlsx')#formatting_info=True
+    table = file.sheet_by_index(0)
+    data = []
+    for i in range(54):
+        number = int(table.cell_value(i,0))
+        name = table.cell_value(i,1)
+        temp = {'number':number,'name':name}
+        data.append(temp)
+    return data
 
 @itchat.msg_register(itchat.content.TEXT,isGroupChat=True)
 def print_content(msg):
