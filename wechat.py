@@ -20,7 +20,7 @@ def read():
 
 data = read()
 
-def save(data,sheet=0,row,col):
+def save(data,sheet=0,row=2,col=1):
     xls = xlrd.open_workbook('17级2班擦黑板.xlsx')
     xlsc = copy(xls)
     sheet1 = xlsc.get_sheet(sheet)
@@ -40,16 +40,17 @@ def getChatroom(name):
 def LabourBot(msg):
     global send
     global state
+    exchange = []
 
     data = None
     hour = time.localtime(time.time())[3]
-    if hour >= 19 and send == 1:
+    if hour >= 0 and send == 1:
         data = read()
         students = [data[state]['name'],data[state+1]['name']]
-        print(students)
+        #print(students)
         message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板。请回复“我会好好擦黑板”，否则将视作缺勤。'
-        print(message)
-        itchat.send_msg(msg=message,toUserName=getChatroom('你们两个给我好好擦黑板'))
+        #print(message)
+        itchat.send_msg(msg=message,toUserName=getChatroom('test'))
         for stu in data:
             if stu.get('name',None) in students:
                 stu['turn'] += 1
@@ -57,7 +58,7 @@ def LabourBot(msg):
 
         send = 0
         state = (state + 2) % 54
-    if hour < 19:
+    if hour < 0:
         send = 1
     #print(msg['Text'])
 
@@ -69,24 +70,32 @@ def LabourBot(msg):
 
         student = itchat.search_friends(userName=userName)
         if student.get('RemarkName',None) in students:
-            print(1)
             for stu in data:
                 if stu['name'] == student.get('RemarkName',None):
-                    print(2)
-                    stu['date'] = time.strftime("%a-%m-%d-%Y", time.localtime())
+                    stu['date'] = time.strftime("%m%d%Y", time.localtime())
         print(data[state-2],data[state-1])
 
-    if msg['Text'] == 'jiaohuan':
+    if '$' in msg['Text']:
+        flag = 0
         data = read()
+        names = msg['Text'].split('$')          # 0-本人 1-他人
+        print(names)
+
         userName = msg.get('ActualUserName',None)
-        students = [read()[state-2]['name'],read()[state-1]['name']]
+        students = [data[state-2]['name'],data[state-1]['name']]
         print(students)
 
         student = itchat.search_friends(userName=userName)
-        if student.get('RemarkName',None) in students:
-            pass
+        for stu in data:
+            if stu['name'] == names[1] and stu['name'] == names[0]:
+                flag = 1
 
+        if flag == 0:
+            itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
 
+        if student.get('RemarkName',None) in students and student.get('RemarkName',None) == names[0] and flag == 1:
+            exchange = names
+            print(exchange)
 
 
 
