@@ -9,29 +9,29 @@ def read():
     for i in range(54):
         number = int(table.cell_value(i,0))
         name = table.cell_value(i,1)
-        temp = {'number':number,'name':name}
+        temp = {'number':number,'name':name,'date':None,'finish':False}
         data.append(temp)
     return data
 
+def getChatroom(name):
+    for room in itchat.get_chatrooms():
+        if room['NickName'] == name:
+            return room['UserName']
+
+send = 1
+
 @itchat.msg_register(itchat.content.TEXT,isGroupChat=True)
-def print_content(msg):
+def LabourBot(msg):
+    hour = time.localtime(time.time())[3]
+    if hour >= 19 and send:
+        itchat.send_msg(msg='Text Message',toUserName=getChatroom('求求你们都别学了'))
+        send = 0
+    if hour < 19:
+        send = 1
     print(msg['Text'])
-
-@itchat.msg_register(itchat.content.PICTURE)
-def print_image(msg):
-    print(msg['Text'])
-
-
-itchat.auto_login(enableCmdQR=True, hotReload=True)
-#print(itchat.search_chatrooms(name="数院2017级二班")['UserName'])
-
-for room in itchat.get_chatrooms(update=True):
-    if room['NickName'] == "数院2017级二班":
-        print(room['UserName'])
-        #userName = room['UserName']
-
-userName='@@0bb34b6af41a6ea8f5a1f5f632da2bec770e0a52616f13c4977d08c1d75f1ef7'   #5
-erban = '@@eaf74e43a28d3079c64f0a71f0802063e43b0ba5ac9b979eb3b4eadb618580b0'    #二班班级群
-itchat.send_msg(msg="",toUserName=userName)
+    
+#    if(msg['ActualUserName']==&&msg['Text']=='我会好好擦黑板')
+itchat.auto_login(enableCmdQR = True, hotReload = True)
+#print(itchat.search_chatrooms(name="数院2017级二班"))
 
 itchat.run()
