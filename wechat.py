@@ -22,7 +22,7 @@ def print_image(msg):
     print(msg['Text'])
 
 
-itchat.auto_login(hotReload=True)
+itchat.auto_login(enableCmdQR=True, hotReload=True)
 #print(itchat.search_chatrooms(name="数院2017级二班")['UserName'])
 
 for room in itchat.get_chatrooms(update=True):
