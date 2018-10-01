@@ -7,7 +7,7 @@ send = 1
 state = 0
 
 def read():
-    file = xlrd.open_workbook('二班名单.xlsx')#formatting_info=True
+    file = xlrd.open_workbook('17级2班擦黑板.xlsx')#formatting_info=True
     table = file.sheet_by_index(0)
     data = []
     for i in range(1,55):
@@ -49,15 +49,21 @@ def LabourBot(msg):
         state = (state + 2) % 54
     if hour < 19:
         send = 1
-    print(msg['Text'])
+    #print(msg['Text'])
 
     if msg['Text'] == '我会好好擦黑板':
         userName = msg.get('ActualUserName',None)
+        students = [read()[state-2]['name'],read()[state-1]['name']]
+        print(students)
 
         student = itchat.search_friends(userName=userName)
-        for stu in read():
-            if stu['name'] == student.get('RemarkName',None):
-                stu['date'] = time.strftime("%a-%m-%d-%Y", time.localtime())
+        if student.get('RemarkName',None) in students:
+            print(1)
+            for stu in read():
+                if stu['name'] == student.get('RemarkName',None):
+                    print(2)
+                    stu['date'] = time.strftime("%a-%m-%d-%Y", time.localtime())
+        print(data[state-2],data[state-1])
 
 
 
