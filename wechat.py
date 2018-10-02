@@ -75,27 +75,34 @@ def LabourBot(msg):
                     stu['date'] = time.strftime("%m%d%Y", time.localtime())
         print(data[state-2],data[state-1])
 
-    if '$' in msg['Text']:
+    if '换' in msg['Text']:
         flag = 0
         data = read()
-        names = msg['Text'].split('$')          # 0-本人 1-他人
+        names = msg['Text'].split('换')          # 0-本人 1-他人
         print(names)
+        if len(names) == 2:
 
-        userName = msg.get('ActualUserName',None)
-        students = [data[state-2]['name'],data[state-1]['name']]
-        print(students)
+            userName = msg.get('ActualUserName',None)
+            students = [data[state-2]['name'],data[state-1]['name']]
+            print(students)
 
-        student = itchat.search_friends(userName=userName)
-        for stu in data:
-            if stu['name'] == names[1] and stu['name'] == names[0]:
-                flag = 1
+            student = itchat.search_friends(userName=userName)
+            for stu in data:
+                if stu['name'] == names[1]:
+                    flag += 1
+                if stu['name'] == names[0]:
+                    flag += 1
 
-        if flag == 0:
-            itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
+            if flag < 2:
+                itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
 
-        if student.get('RemarkName',None) in students and student.get('RemarkName',None) == names[0] and flag == 1:
-            exchange = names
-            print(exchange)
+            if student.get('RemarkName',None) in students and student.get('RemarkName',None) == names[0] and flag == 2:
+                exchange = names
+                itchat.send_msg(msg="请"+names[1]+"同学确认",toUserName=getChatroom('test'))
+                print(exchange)
+
+        if '确认' in msg['Text']:
+            pass
 
 
 
