@@ -18,12 +18,17 @@ def read():
         turn = int(table.cell_value(i,2))
         date = []
         for j in range(table.ncols - 3):
-            date.append(int(table.cell_value(i,j + 3)))
+            try:
+                date.append(int(table.cell_value(i,j + 3)))
+            except:
+                pass
         temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
-    #for i in range(0,53):
-    #    if data[i]['turn'] > data[i + 1]['turn']:
-    #        state = i + 1
+    '''
+    for i in range(0,53):
+        if data[i]['turn'] > data[i + 1]['turn']:
+            state = i + 1
+    '''
     return data
 
 
@@ -56,11 +61,11 @@ def LabourBot(msg):
 
     data = None
     hour = time.localtime(time.time())[3]
-    if hour >= 0 and send == 1:
+    if hour >= 10 and send == 1:
         data = read()
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
-        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板。请回复“我会好好擦黑板”，否则将视作缺勤。'
+        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
         itchat.send_msg(msg=message,toUserName=getChatroom('test'))
         for stu in data:
@@ -70,7 +75,7 @@ def LabourBot(msg):
 
         send = 0
         state = (state + 2) % 54
-    if hour < 0:
+    if hour < 10:
         send = 1
     #print(msg['Text'])
 
