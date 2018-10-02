@@ -2,33 +2,45 @@ import itchat
 import time
 import xlrd
 import xlwt
+from xlutils.copy import copy
 
 send = 1
 state = 0
 
 def read():
-    file = xlrd.open_workbook('17级2班擦黑板.xlsx')#formatting_info=True
+    global state
+    file = xlrd.open_workbook('17级2班擦黑板.xls')#formatting_info=True
     table = file.sheet_by_index(0)
     data = []
     for i in range(1,55):
         number = int(table.cell_value(i,0))
         name = table.cell_value(i,1)
         turn = int(table.cell_value(i,2))
-        temp = {'number':number,'name':name,'date':None,'turn':turn}
+        date = []
+        for j in range(table.ncols - 3):
+            date.append(int(table.cell_value(i,j + 3)))
+        temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
+    #for i in range(0,53):
+    #    if data[i]['turn'] > data[i + 1]['turn']:
+    #        state = i + 1
     return data
 
-data = read()
 
 def save(data,sheet=0,row=2,col=1):
-    xls = xlrd.open_workbook('17级2班擦黑板.xlsx')
+    xls = xlrd.open_workbook('17级2班擦黑板.xls')
     xlsc = copy(xls)
-    sheet1 = xlsc.get_sheet(sheet)
-    (r,c) = data.shape
-    for i in range(r):
-        for j in range(c):
-            sheet1.write(i + row - 1, j + col - 1, float(data[i][j]))
-    xlsc.save(path)
+    sheet1 = xlsc.get_sheet(0)
+    for i in range(54):
+        j = 0
+        for t in data[i].values():
+            if j == 3:
+                for n in range(len(t)):
+                    sheet1.write(i + 1, j + n, t[n])
+            else:
+                sheet1.write(i + 1, j, t)
+                j += 1
+    xlsc.save('17级2班擦黑板.xls')
 
 def getChatroom(name):
     for room in itchat.get_chatrooms():
@@ -46,7 +58,7 @@ def LabourBot(msg):
     hour = time.localtime(time.time())[3]
     if hour >= 0 and send == 1:
         data = read()
-        students = [data[state]['name'],data[state+1]['name']]
+        students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
         message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
@@ -54,7 +66,7 @@ def LabourBot(msg):
         for stu in data:
             if stu.get('name',None) in students:
                 stu['turn'] += 1
-        print(data[state],data[state+1])
+        print(data[state],data[state + 1])
 
         send = 0
         state = (state + 2) % 54
@@ -65,15 +77,15 @@ def LabourBot(msg):
     if msg['Text'] == '我会好好擦黑板':
         data = read()
         userName = msg.get('ActualUserName',None)
-        students = [data[state-2]['name'],data[state-1]['name']]
+        students = [data[state - 2]['name'],data[state - 1]['name']]
         print(students)
 
         student = itchat.search_friends(userName=userName)
         if student.get('RemarkName',None) in students:
             for stu in data:
                 if stu['name'] == student.get('RemarkName',None):
-                    stu['date'] = time.strftime("%m%d%Y", time.localtime())
-        print(data[state-2],data[state-1])
+                    stu['date'] = [int(time.strftime("%m%d%Y", time.localtime()))]
+        print(data[state - 2],data[state - 1])
 
     if '换' in msg['Text']:
         flag = 0
@@ -101,12 +113,11 @@ def LabourBot(msg):
                 itchat.send_msg(msg="请"+names[1]+"同学确认",toUserName=getChatroom('test'))
                 print(exchange)
 
-        if '确认' in msg['Text']:
-            pass
-
+    if data is not None:
+        save(data)
 
 
 #    if(msg['ActualUserName']==&&msg['Text']=='我会好好擦黑板')
-itchat.auto_login(hotReload = True)
+itchat.auto_login(enableCmdQR=True, hotReload = True)
 #print(itchat.search_chatrooms(name="数院2017级二班"))
 itchat.run()
