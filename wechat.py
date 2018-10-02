@@ -6,6 +6,8 @@ from xlutils.copy import copy
 
 send = 1
 state = 0
+exchangeHour = 0
+exchangeStudents = []
 
 def read():
     global state
@@ -47,16 +49,22 @@ def getChatroom(name):
         if room['NickName'] == name:
             return room['UserName']
 
+def getStudent(msg):
+    userName = msg.get('ActualUserName',None)
+    return (itchat.search_friends(userName=userName))   #找学生
+
 
 @itchat.msg_register(itchat.content.TEXT,isGroupChat=True)
 def LabourBot(msg):
     global send
     global state
+    global exchangeHour
+    global exchangeStudents
     exchange = []
 
     data = None
     hour = time.localtime(time.time())[3]
-    if hour >= 0 and send == 1:
+    if hour >= 0 and send == 1:             #发通知
         data = read()
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
@@ -74,31 +82,37 @@ def LabourBot(msg):
         send = 1
     #print(msg['Text'])
 
-    if msg['Text'] == '我会好好擦黑板':
+    if msg['Text'] == '我会好好擦黑板':        #处理回复
         data = read()
-        userName = msg.get('ActualUserName',None)
+
+        student = getStudent(msg)
+
         students = [data[state - 2]['name'],data[state - 1]['name']]
         print(students)
 
-        student = itchat.search_friends(userName=userName)
         if student.get('RemarkName',None) in students:
             for stu in data:
                 if stu['name'] == student.get('RemarkName',None):
                     stu['date'] = [int(time.strftime("%m%d%Y", time.localtime()))]
         print(data[state - 2],data[state - 1])
 
-    if '换' in msg['Text']:
+    if '换' in msg['Text']:          #处理换人
+
         flag = 0
         data = read()
         names = msg['Text'].split('换')          # 0-本人 1-他人
         print(names)
         if len(names) == 2:
 
-            userName = msg.get('ActualUserName',None)
+            student = getStudent(msg)
+
             students = [data[state-2]['name'],data[state-1]['name']]
             print(students)
+            for stu in students:
+                if stu not in names:
+                    names.append(stu)
 
-            student = itchat.search_friends(userName=userName)
+            print(names)
             for stu in data:
                 if stu['name'] == names[1]:
                     flag += 1
@@ -109,9 +123,27 @@ def LabourBot(msg):
                 itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
 
             if student.get('RemarkName',None) in students and student.get('RemarkName',None) == names[0] and flag == 2:
-                exchange = names
-                itchat.send_msg(msg="请"+names[1]+"同学确认",toUserName=getChatroom('test'))
+                exchangeStudents = names
+                exchangeHour = time.localtime(time.time())[3]
+                itchat.send_msg(msg="请"+names[1]+"同学在2小时内确认",toUserName=getChatroom('test'))
                 print(exchange)
+
+    if "确认" in msg['Text']:         #确认换人
+
+        data = read()
+        student = getStudent(msg)
+        if exchangeStudents !=  []:
+            if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3]-exchangeHour <3:
+                for stu1 in data:
+                    for stu2 in data:
+                        if stu1['name'] == exchangeStudents[0] and stu2['name'] == exchangeStudents[1]:
+                            temp = stu1
+                            stu1 = stu2
+                            stu2 = temp
+                            message = "交换成功，"+exchangeStudents[1] + '和' + exchangeStudents[2] + '同学，明天将轮到你们擦黑板。请回复“我会好好擦黑板”，否则将视作缺勤。'
+                            itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+                            break
+                print(data)
 
     if data is not None:
         save(data)
