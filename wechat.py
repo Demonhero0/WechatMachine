@@ -27,9 +27,11 @@ def read():
                 pass
         temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
+    '''
     for i in range(0,53):
         if data[i]['turn'] > data[i + 1]['turn']:
             state = i + 1
+    '''
     return data
 
 
@@ -66,6 +68,7 @@ def LabourBot(msg):
     global exchangeHour
     global exchangeStudents
     global studentsLabor
+    global students
     exchange = []
 
     data = None
@@ -76,7 +79,7 @@ def LabourBot(msg):
         studentsLabor = [data[state]['name'],data[state + 1]['name']]
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
-        message = studentsLabor[0] + '和' + studentsLabor[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
         itchat.send_msg(msg=message,toUserName=getChatroom('test'))
         for stu in data:
@@ -104,7 +107,9 @@ def LabourBot(msg):
                     index = studentsLabor.index(stu['name'])
                     studentsLabor.pop(index)
         print(studentsLabor)
-        print(data[state - 2],data[state - 1])
+        for stu in data:
+            if stu['name'] in students:
+                print(stu)
 
     if '换成' in msg['Text']:          #处理换人
 
@@ -143,8 +148,8 @@ def LabourBot(msg):
                             if stu2['name'] == exchangeStudents[1]:
                                 index = students.index(stu1['name'])
                                 students.pop(index)
-                                studnets.append(stu2['name'])
-                                index = studentsLabor.index(stu['name'])
+                                students.append(stu2['name'])
+                                index = studentsLabor.index(stu1['name'])
                                 studentsLabor.pop(index)
                                 studentsLabor.append(stu2['name'])
                                 temp = stu1
@@ -152,7 +157,7 @@ def LabourBot(msg):
                                 stu2 = temp
                                 stu1['turn'] += 1
                                 stu2['turn'] -= 1
-                                message = "交换成功，"+studnets[0]+"和"+students[1]+'同学，明天将轮到你擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+                                message = "交换成功，"+students[0]+"和"+students[1]+'同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
                                 #exchangeStudents = []
                                 itchat.send_msg(msg=message,toUserName=getChatroom('test'))
                                 break
