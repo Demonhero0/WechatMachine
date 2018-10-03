@@ -27,9 +27,11 @@ def read():
                 pass
         temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
+    '''
     for i in range(0,53):
         if data[i]['turn'] > data[i + 1]['turn']:
             state = i + 1
+    '''
     return data
 
 def save(data,sheet=0,row=2,col=1):
@@ -48,7 +50,7 @@ def save(data,sheet=0,row=2,col=1):
     xlsc.save('17级2班擦黑板.xls')
 
 def getChatroom(name):
-    for room in itchat.get_chatrooms():
+    for room in itchat.get_chatrooms(update=True,contactOnly=True):
         if room['NickName'] == name:
             return room['UserName']
 
@@ -80,6 +82,11 @@ def LabourBot(msg):
         message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
         itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+
+        banzhang = itchat.search_friends(remarkName="张健")
+        message = '请您发送群公告。'
+        itchat.send_msg(msg=message,toUserName=banzhang[0]['UserName'])
+
         for stu in data:
             if stu.get('name',None) in studentsLabor:
                 stu['turn'] += 1
@@ -101,9 +108,12 @@ def LabourBot(msg):
         if student.get('RemarkName',None) in studentsLabor:
             for stu in data:
                 if stu['name'] == student.get('RemarkName',None):
-                    stu['date'].append(int(time.strftime("%m%d%Y", time.localtime())))
+                    stu['date'].append(int(time.strftime("%m%d%Y", time.localtime()))+1)
                     index = studentsLabor.index(stu['name'])
                     studentsLabor.pop(index)
+                    message = stu['name'] + "已确认。"
+                    #print(message)
+                    itchat.send_msg(msg=message,toUserName=getChatroom('test'))
         print(studentsLabor)
         for stu in data:
             if stu['name'] in students:
