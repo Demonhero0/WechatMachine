@@ -8,6 +8,7 @@ send = 1
 state = 0
 exchangeHour = 0
 exchangeStudents = []
+studentsLabor,students = [],[]
 
 def read():
     global state
@@ -26,11 +27,9 @@ def read():
                 pass
         temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
-    '''
     for i in range(0,53):
         if data[i]['turn'] > data[i + 1]['turn']:
             state = i + 1
-    '''
     return data
 
 
@@ -56,7 +55,8 @@ def getChatroom(name):
 
 def getStudent(msg):
     userName = msg.get('ActualUserName',None)
-    return (itchat.search_friends(userName=userName))   #找学生
+    student = itchat.search_friends(userName=userName)   #找学生
+    return student
 
 
 @itchat.msg_register(itchat.content.TEXT,isGroupChat=True)
@@ -65,26 +65,28 @@ def LabourBot(msg):
     global state
     global exchangeHour
     global exchangeStudents
+    global studentsLabor
     exchange = []
 
     data = None
     hour = time.localtime(time.time())[3]
 
-    if hour >= 10 and send == 1:
+    if hour >= 19 and send == 1:
         data = read()
+        studentsLabor = [data[state]['name'],data[state + 1]['name']]
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
-        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+        message = studentsLabor[0] + '和' + studentsLabor[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
         itchat.send_msg(msg=message,toUserName=getChatroom('test'))
         for stu in data:
-            if stu.get('name',None) in students:
+            if stu.get('name',None) in studentsLabor:
                 stu['turn'] += 1
         print(data[state],data[state + 1])
 
         send = 0
         state = (state + 2) % 54
-    if hour < 10:
+    if hour < 19:
         send = 1
     #print(msg['Text'])
 
@@ -93,32 +95,27 @@ def LabourBot(msg):
 
         student = getStudent(msg)
 
-        students = [data[state - 2]['name'],data[state - 1]['name']]
-        print(students)
+        print(studentsLabor)
 
-        if student.get('RemarkName',None) in students:
+        if student.get('RemarkName',None) in studentsLabor:
             for stu in data:
                 if stu['name'] == student.get('RemarkName',None):
-                    stu['date'] = [int(time.strftime("%m%d%Y", time.localtime()))]
+                    stu['date'].append(int(time.strftime("%m%d%Y", time.localtime())))
+                    index = studentsLabor.index(stu['name'])
+                    studentsLabor.pop(index)
+        print(studentsLabor)
         print(data[state - 2],data[state - 1])
 
-    if '换' in msg['Text']:          #处理换人
+    if '换成' in msg['Text']:          #处理换人
 
         flag = 0
         data = read()
-        names = msg['Text'].split('换')          # 0-本人 1-他人
+        names = msg['Text'].split('换成')          # 0-本人 1-他人
         print(names)
         if len(names) == 2:
 
             student = getStudent(msg)
 
-            students = [data[state-2]['name'],data[state-1]['name']]
-            print(students)
-            for stu in students:
-                if stu not in names:
-                    names.append(stu)
-
-            print(names)
             for stu in data:
                 if stu['name'] == names[1]:
                     flag += 1
@@ -128,7 +125,7 @@ def LabourBot(msg):
             if flag < 2:
                 itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
 
-            if student.get('RemarkName',None) in students and student.get('RemarkName',None) == names[0] and flag == 2:
+            if flag == 2 and student.get('RemarkName',None) in studentsLabor and student.get('RemarkName',None) == names[0]:
                 exchangeStudents = names
                 exchangeHour = time.localtime(time.time())[3]
                 itchat.send_msg(msg="请"+names[1]+"同学在2小时内确认",toUserName=getChatroom('test'))
@@ -141,21 +138,35 @@ def LabourBot(msg):
         if exchangeStudents !=  []:
             if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3]-exchangeHour <3:
                 for stu1 in data:
-                    for stu2 in data:
-                        if stu1['name'] == exchangeStudents[0] and stu2['name'] == exchangeStudents[1]:
-                            temp = stu1
-                            stu1 = stu2
-                            stu2 = temp
-                            message = "交换成功，"+exchangeStudents[1] + '和' + exchangeStudents[2] + '同学，明天将轮到你们擦黑板。请回复“我会好好擦黑板”，否则将视作缺勤。'
-                            itchat.send_msg(msg=message,toUserName=getChatroom('test'))
-                            break
-                print(data)
+                    if stu1['name'] == exchangeStudents[0]:
+                        for stu2 in data:
+                            if stu2['name'] == exchangeStudents[1]:
+                                index = students.index(stu1['name'])
+                                students.pop(index)
+                                studnets.append(stu2['name'])
+                                index = studentsLabor.index(stu['name'])
+                                studentsLabor.pop(index)
+                                studentsLabor.append(stu2['name'])
+                                temp = stu1
+                                stu1 = stu2
+                                stu2 = temp
+                                stu1['turn'] += 1
+                                stu2['turn'] -= 1
+                                message = "交换成功，"+studnets[0]+"和"+students[1]+'同学，明天将轮到你擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+                                #exchangeStudents = []
+                                itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+                                break
+                        break
+
+            for stu in data:
+                if stu['name'] in exchangeStudents:
+                    print(stu)
+            exchangeStudents = []
 
     if data is not None:
         save(data)
 
-
 #    if(msg['ActualUserName']==&&msg['Text']=='我会好好擦黑板')
-itchat.auto_login(enableCmdQR=True, hotReload = True)
+itchat.auto_login(hotReload = True) #(enableCmdQR=True, hotReload = True)
 #print(itchat.search_chatrooms(name="数院2017级二班"))
 itchat.run()
