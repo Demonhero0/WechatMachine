@@ -32,7 +32,6 @@ def read():
             state = i + 1
     return data
 
-
 def save(data,sheet=0,row=2,col=1):
     xls = xlrd.open_workbook('17级2班擦黑板.xls')
     xlsc = copy(xls)
@@ -57,7 +56,6 @@ def getStudent(msg):
     userName = msg.get('ActualUserName',None)
     student = itchat.search_friends(userName=userName)   #找学生
     return student
-
 
 @itchat.msg_register(itchat.content.TEXT,isGroupChat=True)
 def LabourBot(msg):
@@ -170,7 +168,6 @@ def LabourBot(msg):
 
     if data is not None:
         save(data)
-
 
 itchat.auto_login(enableCmdQR=True, hotReload = True)
 
