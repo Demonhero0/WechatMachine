@@ -69,11 +69,8 @@ def LabourBot(msg):
 
     data = None
     hour = time.localtime(time.time())[3]
-<<<<<<< HEAD
+
     if hour >= 10 and send == 1:
-=======
-    if hour >= 0 and send == 1:             #发通知
->>>>>>> af6ea6f62d40a609ce7802cc6c5eddfc71c158c8
         data = read()
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
