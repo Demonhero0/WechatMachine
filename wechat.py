@@ -141,7 +141,7 @@ def LabourBot(msg):
         data = read()
         student = getStudent(msg)
         if exchangeStudents !=  []:
-            if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3]-exchangeHour <3:
+            if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3] - exchangeHour <3:
                 for stu1 in data:
                     if stu1['name'] == exchangeStudents[0]:
                         for stu2 in data:
@@ -157,7 +157,7 @@ def LabourBot(msg):
                                 stu2 = temp
                                 stu1['turn'] += 1
                                 stu2['turn'] -= 1
-                                message = "交换成功，"+students[0]+"和"+students[1]+'同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+                                message = "交换成功，"+students[0] + "和" + students[1]+'同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
                                 #exchangeStudents = []
                                 itchat.send_msg(msg=message,toUserName=getChatroom('test'))
                                 break
