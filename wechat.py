@@ -11,7 +11,7 @@ exchangeStudents = []
 
 def read():
     global state
-    file = xlrd.open_workbook('17级2班擦黑板.xls')#formatting_info=True
+    file = xlrd.open_workbook('17级2班擦黑板.xls')
     table = file.sheet_by_index(0)
     data = []
     for i in range(1,55):
@@ -26,11 +26,9 @@ def read():
                 pass
         temp = {'number':number,'name':name,'turn':turn,'date':date}
         data.append(temp)
-    '''
     for i in range(0,53):
         if data[i]['turn'] > data[i + 1]['turn']:
             state = i + 1
-    '''
     return data
 
 
@@ -69,11 +67,7 @@ def LabourBot(msg):
 
     data = None
     hour = time.localtime(time.time())[3]
-<<<<<<< HEAD
-    if hour >= 10 and send == 1:
-=======
-    if hour >= 0 and send == 1:             #发通知
->>>>>>> af6ea6f62d40a609ce7802cc6c5eddfc71c158c8
+    if hour >= 10 and send == 1:    #发通知
         data = read()
         students = [data[state]['name'],data[state + 1]['name']]
         #print(students)
@@ -157,8 +151,5 @@ def LabourBot(msg):
     if data is not None:
         save(data)
 
-
-#    if(msg['ActualUserName']==&&msg['Text']=='我会好好擦黑板')
 itchat.auto_login(enableCmdQR=True, hotReload = True)
-#print(itchat.search_chatrooms(name="数院2017级二班"))
 itchat.run()
