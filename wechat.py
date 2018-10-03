@@ -133,15 +133,15 @@ def LabourBot(msg):
             if flag == 2 and student.get('RemarkName',None) in studentsLabor and student.get('RemarkName',None) == names[0]:
                 exchangeStudents = names
                 exchangeHour = time.localtime(time.time())[3]
-                itchat.send_msg(msg="请"+names[1]+"同学在2小时内确认",toUserName=getChatroom('test'))
+                itchat.send_msg(msg="请" + names[1] + "同学在2小时内确认",toUserName=getChatroom('test'))
                 print(exchange)
 
     if "确认" in msg['Text']:         #确认换人
 
         data = read()
         student = getStudent(msg)
-        if exchangeStudents !=  []:
-            if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3] - exchangeHour <3:
+        if exchangeStudents != []:
+            if student.get('RemarkName',None) == exchangeStudents[1] and time.localtime(time.time())[3] - exchangeHour < 3:
                 for stu1 in data:
                     if stu1['name'] == exchangeStudents[0]:
                         for stu2 in data:
@@ -157,7 +157,7 @@ def LabourBot(msg):
                                 stu2 = temp
                                 stu1['turn'] += 1
                                 stu2['turn'] -= 1
-                                message = "交换成功，"+students[0] + "和" + students[1]+'同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+                                message = "交换成功，" + students[0] + "和" + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
                                 #exchangeStudents = []
                                 itchat.send_msg(msg=message,toUserName=getChatroom('test'))
                                 break
@@ -175,5 +175,4 @@ def LabourBot(msg):
 itchat.auto_login(enableCmdQR=True, hotReload = True)
 
 #itchat.auto_login(hotReload = True)
-
 itchat.run()
