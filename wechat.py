@@ -79,7 +79,7 @@ def LabourBot(msg):
         studentsLabor = [data[state]['name'],data[(state + 1) % 54]['name']]
         students = [data[state]['name'],data[(state + 1) % 54]['name']]
         #print(students)
-        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
+        message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。如果需要更换人员，请按此格式回复（“张三换成李四”）。'
         #print(message)
         itchat.send_msg(msg=message,toUserName=getChatroom(chatRoom))
 
@@ -141,7 +141,7 @@ def LabourBot(msg):
             if flag == 2 and student.get('RemarkName',None) in studentsLabor and student.get('RemarkName',None) == names[0]:
                 exchangeStudents = names
                 exchangeHour = time.localtime(time.time())[3]
-                itchat.send_msg(msg="请" + names[1] + "同学在2小时内确认",toUserName=getChatroom(chatRoom))
+                itchat.send_msg(msg="请" + names[1] + "同学在2小时内回复“确认”，否则视作换人无效。",toUserName=getChatroom(chatRoom))
                 print(exchange)
 
     if "确认" in msg['Text']:         #确认换人
@@ -175,6 +175,13 @@ def LabourBot(msg):
                 if stu['name'] in exchangeStudents:
                     print(stu)
             exchangeStudents = []
+            
+    if "没做" in msg['Text']:
+        
+        data = read()
+        student = getStudent(msg)
+        if student.get('RemarkName',None) == "孙奕华":
+            pass
 
     if data is not None:
         save(data)
