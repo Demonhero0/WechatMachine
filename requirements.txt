@@ -1,4 +1,4 @@
 itchat
 xlrd
-xlwt
+xlsxwriter
 xlutils
