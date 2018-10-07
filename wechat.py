@@ -10,6 +10,8 @@ exchangeHour = 0
 exchangeStudents = []
 studentsLabor,students = [],[]
 
+chatRoom = "数院2017级二班"
+
 def read():
     global state
     file = xlrd.open_workbook('17级2班擦黑板.xls')
@@ -79,11 +81,11 @@ def LabourBot(msg):
         #print(students)
         message = students[0] + '和' + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
         #print(message)
-        itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+        itchat.send_msg(msg=message,toUserName=getChatroom(chatRoom))
 
-        #banzhang = itchat.search_friends(remarkName="张健")
-        #message = '请您发送群公告。'
-        #itchat.send_msg(msg=message,toUserName=banzhang[0]['UserName'])
+        banzhang = itchat.search_friends(remarkName="张健")
+        message = '请您发送群公告提醒值日信息。'
+        itchat.send_msg(msg=message,toUserName=banzhang[0]['UserName'])
 
         for stu in data:
             if stu.get('name',None) in studentsLabor:
@@ -111,7 +113,7 @@ def LabourBot(msg):
                     studentsLabor.pop(index)
                     message = stu['name'] + "已确认。"
                     #print(message)
-                    itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+                    itchat.send_msg(msg=message,toUserName=getChatroom(chatRoom))
         print(studentsLabor)
         for stu in data:
             if stu['name'] in students:
@@ -134,12 +136,12 @@ def LabourBot(msg):
                     flag += 1
 
             if flag < 2:
-                itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom('test'))
+                itchat.send_msg(msg="请输入正确名字",toUserName=getChatroom(chatRoom))
 
             if flag == 2 and student.get('RemarkName',None) in studentsLabor and student.get('RemarkName',None) == names[0]:
                 exchangeStudents = names
                 exchangeHour = time.localtime(time.time())[3]
-                itchat.send_msg(msg="请" + names[1] + "同学在2小时内确认",toUserName=getChatroom('test'))
+                itchat.send_msg(msg="请" + names[1] + "同学在2小时内确认",toUserName=getChatroom(chatRoom))
                 print(exchange)
 
     if "确认" in msg['Text']:         #确认换人
@@ -165,7 +167,7 @@ def LabourBot(msg):
                                 stu2['turn'] -= 1
                                 message = "交换成功，" + students[0] + "和" + students[1] + '同学，明天将轮到你们擦黑板[爱心]。请回复“我会好好擦黑板”，否则将视作缺勤。'
                                 #exchangeStudents = []
-                                itchat.send_msg(msg=message,toUserName=getChatroom('test'))
+                                itchat.send_msg(msg=message,toUserName=getChatroom(chatRoom))
                                 break
                         break
 
